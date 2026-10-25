@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Delivery Route</title>
+</head>
+<body>
+<h1>My Delivery Route</h1>
+<h2>যাত্রা শুরু এবং শেষ</h2>
+<label>যাত্রা শুরু কোথা থেকে?</label>
+<input id="start" placeholder="শুরুর স্থান">
+<h2>দোকান যোগ করুন</h2>
+<input id="name" placeholder="দোকানের নাম">
+<input id="location" placeholder="Google Maps লিংক বা ঠিকানা">
+<button onclick="addStore()">দোকান যোগ করুন</button>
+<h2>দোকানের তালিকা</h2>
+<div id="stores"></div>
+<button onclick="makeRoute()">Google Maps রুট তৈরি করুন</button>
+<script>
+let stores=[];
+function addStore(){let name=document.getElementById("name").value.trim();let location=document.getElementById("location").value.trim();if(!location){alert("দোকানের লোকেশন লিখুন");return;}stores.push({name:name||"দোকান",location:location});render();document.getElementById("name").value="";document.getElementById("location").value="";}
+function render(){document.getElementById("stores").replaceChildren();stores.forEach((s,i)=>{let p=document.createElement("p");p.textContent=(i+1)+". "+s.name+" — "+s.location+" ";let b=document.createElement("button");b.textContent="ডেলিভারি সম্পন্ন";b.onclick=()=>{p.textContent="✓ "+s.name+" — ডেলিভারি সম্পন্ন";};let m=document.createElement("button");m.textContent="Maps";m.onclick=()=>window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(s.location),"_blank");p.append(b,m);document.getElementById("stores").append(p);});}
+function makeRoute(){let start=document.getElementById("start").value.trim();if(!start){alert("যাত্রা শুরুর স্থান লিখুন");return;}if(!stores.length){alert("আগে দোকান যোগ করুন");return;}let dest=stores[stores.length-1].location;let way=stores.slice(0,-1).map(s=>s.location).join("|");let url="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(start)+"&destination="+encodeURIComponent(dest)+"&travelmode=driving";if(way)url+="&waypoints="+encodeURIComponent(way);window.open(url,"_blank");}
+</script>
+</body>
+</html>
