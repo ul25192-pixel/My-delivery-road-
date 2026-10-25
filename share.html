@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Delivery Route - Share</title>
+</head>
+<body>
+  <h2>My Delivery Route</h2>
+  <p>আপনার শেয়ার করা দোকানের লিংক গ্রহণ করা হচ্ছে...</p>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const title = params.get("title") || "";
+    const text = params.get("text") || "";
+    const url = params.get("url") || "";
+
+    const sharedText = [title, text, url]
+      .filter(Boolean)
+      .join("\n");
+
+    if (sharedText) {
+      window.location.href = "./?shared=" +
+        encodeURIComponent(sharedText);
+    } else {
+      window.location.href = "./";
+    }
+  </script>
+</body>
+</html>
