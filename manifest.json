@@ -1,0 +1,22 @@
+
+{
+  "name": "My Delivery Route",
+  "short_name": "Delivery Route",
+  "description": "দোকানের তালিকা এবং ডেলিভারি রুট",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f5f7",
+  "theme_color": "#198754",
+  "lang": "bn",
+  "share_target": {
+    "action": "share.html",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
