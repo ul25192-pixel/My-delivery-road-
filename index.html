@@ -1,27 +1,161 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Delivery Route</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Delivery Route</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f2f5f7;
+      color: #222;
+    }
+    h2 { text-align: center; color: #146c43; }
+    input, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0;
+      font-size: 16px;
+      border-radius: 7px;
+    }
+    input { border: 1px solid #bbb; background: white; }
+    button {
+      border: none;
+      background: #198754;
+      color: white;
+      cursor: pointer;
+    }
+    .shop {
+      background: white;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      overflow-wrap: anywhere;
+    }
+    .shop button { margin-top: 8px; }
+    .done { color: green; font-weight: bold; }
+  </style>
 </head>
 <body>
-<h1>My Delivery Route</h1>
-<h2>যাত্রা শুরু এবং শেষ</h2>
-<label>যাত্রা শুরু কোথা থেকে?</label>
-<input id="start" placeholder="শুরুর স্থান">
-<h2>দোকান যোগ করুন</h2>
-<input id="name" placeholder="দোকানের নাম">
-<input id="location" placeholder="Google Maps লিংক বা ঠিকানা">
-<button onclick="addStore()">দোকান যোগ করুন</button>
-<h2>দোকানের তালিকা</h2>
-<div id="stores"></div>
-<button onclick="makeRoute()">Google Maps রুট তৈরি করুন</button>
-<script>
-let stores=[];
-function addStore(){let name=document.getElementById("name").value.trim();let location=document.getElementById("location").value.trim();if(!location){alert("দোকানের লোকেশন লিখুন");return;}stores.push({name:name||"দোকান",location:location});render();document.getElementById("name").value="";document.getElementById("location").value="";}
-function render(){document.getElementById("stores").replaceChildren();stores.forEach((s,i)=>{let p=document.createElement("p");p.textContent=(i+1)+". "+s.name+" — "+s.location+" ";let b=document.createElement("button");b.textContent="ডেলিভারি সম্পন্ন";b.onclick=()=>{p.textContent="✓ "+s.name+" — ডেলিভারি সম্পন্ন";};let m=document.createElement("button");m.textContent="Maps";m.onclick=()=>window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(s.location),"_blank");p.append(b,m);document.getElementById("stores").append(p);});}
-function makeRoute(){let start=document.getElementById("start").value.trim();if(!start){alert("যাত্রা শুরুর স্থান লিখুন");return;}if(!stores.length){alert("আগে দোকান যোগ করুন");return;}let dest=stores[stores.length-1].location;let way=stores.slice(0,-1).map(s=>s.location).join("|");let url="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(start)+"&destination="+encodeURIComponent(dest)+"&travelmode=driving";if(way)url+="&waypoints="+encodeURIComponent(way);window.open(url,"_blank");}
-</script>
+  <h2>My Delivery Route</h2>
+
+  <h3>দোকানের তথ্য যোগ করুন</h3>
+  <input id="shopName" placeholder="দোকানের নাম লিখুন">
+  <input id="shopLink" placeholder="Google Maps লিংক পেস্ট করুন">
+  <button onclick="addShop()">দোকান যোগ করুন</button>
+
+  <h3>যাত্রা শুরু</h3>
+  <button onclick="startRoute()">Google Maps-এ রুট শুরু করুন</button>
+
+  <h3>দোকানের তালিকা</h3>
+  <div id="shopList"></div>
+
+  <script>
+    let shops = [];
+    try {
+      shops = JSON.parse(localStorage.getItem("deliveryShops") || "[]");
+      if (!Array.isArray(shops)) shops = [];
+    } catch (e) {
+      shops = [];
+    }
+
+    function saveShops() {
+      localStorage.setItem("deliveryShops", JSON.stringify(shops));
+    }
+
+    function addShop() {
+      const name = document.getElementById("shopName").value.trim();
+      const link = document.getElementById("shopLink").value.trim();
+
+      if (!name) {
+        alert("দোকানের নাম লিখুন");
+        return;
+      }
+
+      if (link && !/^https?:\/\//i.test(link)) {
+        alert("সঠিক Google Maps লিংক পেস্ট করুন");
+        return;
+      }
+
+      shops.push({ name, link, done: false });
+      saveShops();
+
+      document.getElementById("shopName").value = "";
+      document.getElementById("shopLink").value = "";
+      renderShops();
+    }
+
+    function renderShops() {
+      const list = document.getElementById("shopList");
+      list.innerHTML = "";
+
+      shops.forEach((shop, index) => {
+        const card = document.createElement("div");
+        card.className = "shop";
+
+        const title = document.createElement("strong");
+        title.textContent = (index + 1) + ". " + shop.name;
+        card.appendChild(title);
+
+        if (shop.done) {
+          const status = document.createElement("p");
+          status.className = "done";
+          status.textContent = "ডেলিভারি সম্পন্ন";
+          card.appendChild(status);
+        }
+
+        if (shop.link) {
+          const map = document.createElement("button");
+          map.textContent = "Google Maps খুলুন";
+          map.onclick = () => window.open(shop.link, "_blank");
+          card.appendChild(map);
+        }
+
+        const done = document.createElement("button");
+        done.textContent = shop.done
+          ? "অসম্পন্ন হিসেবে চিহ্নিত করুন"
+          : "ডেলিভারি সম্পন্ন করুন";
+        done.onclick = () => {
+          shops[index].done = !shops[index].done;
+          saveShops();
+          renderShops();
+        };
+        card.appendChild(done);
+
+        const remove = document.createElement("button");
+        remove.textContent = "দোকান মুছুন";
+        remove.style.background = "#dc3545";
+        remove.onclick = () => {
+          if (confirm("এই দোকানটি মুছে ফেলবেন?")) {
+            shops.splice(index, 1);
+            saveShops();
+            renderShops();
+          }
+        };
+        card.appendChild(remove);
+
+        list.appendChild(card);
+      });
+    }
+
+    function startRoute() {
+      const links = shops
+        .filter(shop => !shop.done && shop.link)
+        .map(shop => shop.link);
+
+      if (links.length === 0) {
+        alert("প্রথমে দোকানের Google Maps লিংক যোগ করুন");
+        return;
+      }
+
+      window.open(links[0], "_blank");
+    }
+
+    renderShops();
+  </script>
 </body>
 </html>
