@@ -239,6 +239,16 @@ openDirections(pending);
 }
 
 function openDirections(items){
+  const origin = currentPosition.lat + "," + currentPosition.lng;
+  const destination = items[0].link;
+
+  const url = "https://www.google.com/maps/dir/?api=1&origin="
+    + encodeURIComponent(origin)
+    + "&destination=" + encodeURIComponent(destination)
+    + "&travelmode=driving";
+
+  window.open(url, "_blank");
+}
 const origin=currentPosition.lat+","+currentPosition.lng;
 const destination=items[items.length-1].link;
 const waypoints=items.slice(0,-1).map(s=>s.link);
