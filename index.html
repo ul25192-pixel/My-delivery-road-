@@ -3,305 +3,269 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Delivery Route</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f2f5f9;color:#172033;font-family:Arial,sans-serif}
-header{background:#146c43;color:white;padding:22px 16px}
-header h1{margin:0 0 7px;font-size:25px}
-header p{margin:0;font-size:14px}
+body{font-family:Arial,sans-serif;margin:0;background:#f1f5f9;color:#172033}
+header{background:#087f5b;color:white;padding:20px 15px;text-align:center}
 main{max-width:650px;margin:auto;padding:15px}
-.card{background:white;border-radius:14px;padding:16px;margin-bottom:15px;box-shadow:0 2px 8px #0000000d}
-h2{font-size:19px;margin:0 0 14px}
-label{display:block;font-size:14px;margin:12px 0 6px}
-input{width:100%;padding:13px;border:1px solid #ccd4df;border-radius:9px;font-size:16px}
-button{border:0;border-radius:9px;padding:12px 14px;font-size:15px;font-weight:bold;cursor:pointer}
-.primary{background:#146c43;color:white;width:100%;margin-top:14px}
-.blue{background:#e4efff;color:#164da0}
-.gray{background:#edf0f4;color:#263449}
-.red{background:#ffe7e7;color:#a31c1c}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.actions button{flex:1}
-.store{border:1px solid #e0e5eb;border-radius:11px;padding:13px;margin-top:12px}
-.store h3{margin:0 0 6px;font-size:17px;overflow-wrap:anywhere}
+.card{background:white;padding:16px;margin:12px 0;border-radius:12px;box-shadow:0 2px 8px #0001}
+h2{font-size:19px;margin-top:0}
+input,button{width:100%;padding:13px;margin:6px 0;border-radius:8px;font-size:16px}
+input{border:1px solid #cbd5e1}
+button{border:0;background:#087f5b;color:white;font-weight:bold;cursor:pointer}
+.secondary{background:#2563eb}
+.danger{background:#dc2626}
+.store{border:1px solid #e2e8f0;padding:12px;border-radius:9px;margin:10px 0}
+.store a{display:inline-block;margin:5px 0;color:#2563eb}
 .small{font-size:13px;color:#64748b}
-.done{background:#e7f8ed;border-color:#a5d9b5}
-.done h3{text-decoration:line-through}
-.badge{font-size:12px;color:#146c43;font-weight:bold}
-.empty{text-align:center;color:#687589;padding:20px 5px}
-#message{font-size:14px;margin-top:10px;color:#146c43}
-footer{text-align:center;color:#64748b;font-size:12px;padding:15px}
+#status{white-space:pre-wrap;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
 <header>
-<h1>🚚 My Delivery Route</h1>
-<p>আপনার দোকান, ডেলিভারি ও রুট এক জায়গায়</p>
+<h1>My Delivery Route</h1>
+<p>আপনার ডেলিভারি রুট সহজেই তৈরি করুন</p>
 </header>
+
 <main>
 <section class="card">
-<h2>➕ নতুন দোকান যোগ করুন</h2>
-<label for="storeName">দোকানের নাম</label>
-<input id="storeName" placeholder="যেমন: Matar Saif Grocery">
-<label for="storeLink">Google Maps লিংক</label>
-<input id="storeLink" placeholder="Google Maps লিংক এখানে পেস্ট করুন">
-<button class="primary" id="addButton">দোকান যোগ করুন</button>
-<div id="message" role="status"></div>
+<h2>📍 বর্তমান লোকেশন</h2>
+<p id="status">লোকেশন চালু করার জন্য নিচের বাটনে চাপ দিন।</p>
+<button onclick="getLocation()">আমার বর্তমান লোকেশন চালু করুন</button>
+<button class="secondary" onclick="openCurrentLocation()">Google Maps-এ আমার লোকেশন</button>
+</section>
+
+<section class="card">
+<h2>🏪 নতুন দোকান যোগ করুন</h2>
+<input id="storeName" placeholder="দোকানের নাম লিখুন">
+<input id="storeLink" placeholder="Google Maps লোকেশন লিংক পেস্ট করুন">
+<button onclick="addStore()">দোকান যোগ করুন</button>
+<p class="small">Google Maps থেকে দোকানের Share → Copy link ব্যবহার করুন।</p>
 </section>
 
 <section class="card">
 <h2>🗺️ ডেলিভারি রুট</h2>
-<p class="small">অসম্পন্ন দোকানগুলো নিয়ে Google Maps-এ রুট তৈরি করুন।</p>
-<button class="primary" id="routeButton">যাত্রা শুরু করুন</button>
-<div class="actions">
-<button class="blue" id="shareButton">দোকানের তথ্য শেয়ার করুন</button>
-<button class="gray" id="exportButton">তথ্য ব্যাকআপ করুন</button>
-</div>
-<label for="importFile">ব্যাকআপ ফাইল থেকে দোকান ফিরিয়ে আনুন</label>
-<input id="importFile" type="file" accept=".json,application/json">
+<p id="count">মোট দোকান: ০</p>
+<button onclick="startJourney()">যাত্রা শুরু</button>
+<button class="secondary" onclick="openAllStores()">দোকানের রুট Google Maps-এ খুলুন</button>
 </section>
 
 <section class="card">
-<h2>🏪 দোকানের তালিকা <span id="count"></span></h2>
+<h2>📋 দোকানের তালিকা</h2>
 <div id="storeList"></div>
+<button class="danger" onclick="clearDelivered()">সম্পন্ন দোকান সরান</button>
 </section>
 </main>
-<footer>My Delivery Route • আপনার ডেলিভারি, আপনার নিয়ন্ত্রণে</footer>
 
 <script>
-const KEY = "myDeliveryRouteStores_v2";
-let stores = [];
-const $ = id => document.getElementById(id);
+let stores=[];
+let currentPosition=null;
 
-try {
-  const saved = localStorage.getItem(KEY);
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    if (Array.isArray(parsed)) stores = parsed;
-  }
-} catch(e) {}
+try{
+stores=JSON.parse(localStorage.getItem("myDeliveryStores")||"[]");
+}catch(e){stores=[];}
 
-function save() {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(stores));
-    return true;
-  } catch(e) {
-    alert("তথ্য সংরক্ষণ করা যায়নি। ব্যাকআপ নিন।");
-    return false;
-  }
+function save(){
+try{
+localStorage.setItem("myDeliveryStores",JSON.stringify(stores));
+}catch(e){
+alert("দোকান সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পরীক্ষা করুন।");
+}
+render();
 }
 
-function validMapLink(value) {
-  try {
-    const u = new URL(value);
-    return ["http:", "https:"].includes(u.protocol) &&
-      (u.hostname === "maps.app.goo.gl" ||
-       u.hostname === "goo.gl" ||
-       u.hostname.endsWith("google.com") ||
-       u.hostname.endsWith("google.ae") ||
-       u.hostname.endsWith("googleusercontent.com"));
-  } catch(e) {
-    return false;
-  }
+function getLocation(){
+const status=document.getElementById("status");
+
+if(!("geolocation" in navigator)){
+status.textContent="এই ব্রাউজারে লোকেশন সুবিধা নেই। Chrome-এ অ্যাপটি HTTPS লিংক দিয়ে খুলুন।";
+return;
 }
 
-function render() {
-  $("count").textContent = "(" + stores.length + ")";
-  const list = $("storeList");
-  list.replaceChildren();
-
-  if (!stores.length) {
-    const empty = document.createElement("div");
-    empty.className = "empty";
-    empty.textContent = "এখনো কোনো দোকান যোগ করা হয়নি।";
-    list.appendChild(empty);
-    return;
-  }
-
-  stores.forEach((s, i) => {
-    const box = document.createElement("div");
-    box.className = "store" + (s.done ? " done" : "");
-
-    const name = document.createElement("h3");
-    name.textContent = s.name;
-    box.appendChild(name);
-
-    const status = document.createElement("div");
-    status.className = "badge";
-    status.textContent = s.done ? "✓ ডেলিভারি সম্পন্ন" : "ডেলিভারি বাকি";
-    box.appendChild(status);
-
-    const actions = document.createElement("div");
-    actions.className = "actions";
-
-    const nav = document.createElement("button");
-    nav.className = "blue";
-    nav.textContent = "Google Maps";
-    nav.onclick = () => window.open(s.link, "_blank", "noopener,noreferrer");
-    actions.appendChild(nav);
-
-    const done = document.createElement("button");
-    done.className = "gray";
-    done.textContent = s.done ? "আবার বাকি করুন" : "সম্পন্ন করুন";
-    done.onclick = () => {
-      stores[i].done = !stores[i].done;
-      save();
-      render();
-    };
-    actions.appendChild(done);
-
-    const share = document.createElement("button");
-    share.className = "gray";
-    share.textContent = "শেয়ার";
-    share.onclick = () => shareStore(s);
-    actions.appendChild(share);
-
-    const del = document.createElement("button");
-    del.className = "red";
-    del.textContent = "মুছুন";
-    del.onclick = () => {
-      if (confirm(s.name + " মুছে ফেলবেন?")) {
-        stores.splice(i, 1);
-        save();
-        render();
-      }
-    };
-    actions.appendChild(del);
-
-    box.appendChild(actions);
-    list.appendChild(box);
-  });
+if(!window.isSecureContext){
+status.textContent="নিরাপদ HTTPS লিংক প্রয়োজন। GitHub Pages-এর https:// লিংক দিয়ে অ্যাপটি খুলুন।";
+return;
 }
 
-$("addButton").onclick = () => {
-  const name = $("storeName").value.trim();
-  const link = $("storeLink").value.trim();
+status.textContent="আপনার বর্তমান লোকেশন খোঁজা হচ্ছে। ফোনের GPS চালু রাখুন...";
 
-  if (!name || !link) {
-    $("message").textContent = "দোকানের নাম ও Google Maps লিংক দুটোই লিখুন।";
-    return;
-  }
-
-  if (!validMapLink(link)) {
-    $("message").textContent = "সঠিক Google Maps লিংক দিন। Google Maps থেকে Share → Copy link ব্যবহার করুন।";
-    return;
-  }
-
-  stores.push({
-    id: Date.now().toString() + Math.random().toString(16).slice(2),
-    name,
-    link,
-    done: false
-  });
-
-  save();
-  $("storeName").value = "";
-  $("storeLink").value = "";
-  $("message").textContent = "দোকান যোগ হয়েছে!";
-  render();
+navigator.geolocation.getCurrentPosition(
+function(pos){
+currentPosition={
+lat:pos.coords.latitude,
+lng:pos.coords.longitude
 };
-
-$("routeButton").onclick = () => {
-  const pending = stores.filter(s => !s.done);
-
-  if (!pending.length) {
-    alert("রুট তৈরির জন্য কোনো অসম্পন্ন দোকান নেই। আগে দোকান যোগ করুন।");
-    return;
-  }
-
-  if (pending.length === 1) {
-    window.open(pending[0].link, "_blank", "noopener,noreferrer");
-    return;
-  }
-
-  const destination = pending[pending.length - 1].link;
-  const waypoints = pending.slice(0, -1).map(s => s.link).join("|");
-  const url = "https://www.google.com/maps/dir/?api=1" +
-    "&destination=" + encodeURIComponent(destination) +
-    "&waypoints=" + encodeURIComponent(waypoints) +
-    "&travelmode=driving";
-
-  window.open(url, "_blank", "noopener,noreferrer");
-};
-
-async function shareStore(s) {
-  const data = {title:s.name, text:s.name + "\n" + s.link, url:s.link};
-  try {
-    if (navigator.share) await navigator.share(data);
-    else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(data.text);
-      alert("দোকানের তথ্য কপি হয়েছে।");
-    } else {
-      prompt("দোকানের তথ্য কপি করুন:", data.text);
-    }
-  } catch(e) {}
+status.textContent="লোকেশন পাওয়া গেছে!\nঅক্ষাংশ: "+
+currentPosition.lat+"\nদ্রাঘিমাংশ: "+currentPosition.lng;
+},
+function(err){
+let msg="লোকেশন পাওয়া যায়নি।";
+if(err.code===1){
+msg="লোকেশনের অনুমতি দেওয়া হয়নি। Chrome-এর Site settings-এ এই সাইটের Location Allow করুন।";
+}else if(err.code===2){
+msg="ফোনের বর্তমান অবস্থান পাওয়া যাচ্ছে না। GPS/Location চালু করে বাইরে বা জানালার কাছে চেষ্টা করুন।";
+}else if(err.code===3){
+msg="লোকেশন পেতে সময় শেষ হয়েছে। আবার চেষ্টা করুন।";
+}
+status.textContent=msg+"\nError code: "+err.code;
+},
+{enableHighAccuracy:true,timeout:20000,maximumAge:0}
+);
 }
 
-$("shareButton").onclick = async () => {
-  if (!stores.length) {
-    alert("শেয়ার করার আগে দোকান যোগ করুন।");
-    return;
-  }
-  const text = stores.map(s =>
-    s.name + "\n" + s.link + "\n" +
-    (s.done ? "সম্পন্ন" : "বাকি")
-  ).join("\n\n");
+function openCurrentLocation(){
+if(currentPosition){
+window.open("https://www.google.com/maps?q="+
+currentPosition.lat+","+currentPosition.lng,"_blank");
+}else{
+getLocation();
+}
+}
 
-  try {
-    if (navigator.share) {
-      await navigator.share({title:"My Delivery Route", text});
-    } else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(text);
-      alert("দোকানের তালিকা কপি হয়েছে।");
-    } else {
-      prompt("তালিকাটি কপি করুন:", text);
-    }
-  } catch(e) {}
+function addStore(){
+const name=document.getElementById("storeName").value.trim();
+const link=document.getElementById("storeLink").value.trim();
+
+if(!name||!link){
+alert("দোকানের নাম এবং Google Maps লিংক দিন।");
+return;
+}
+
+if(!/^https?:\/\//i.test(link)){
+alert("সঠিক Google Maps লিংক দিন।");
+return;
+}
+
+stores.push({
+id:Date.now().toString()+Math.random().toString(16).slice(2),
+name:name,
+link:link,
+done:false
+});
+
+save();
+document.getElementById("storeName").value="";
+document.getElementById("storeLink").value="";
+alert("দোকান যোগ হয়েছে!");
+}
+
+function render(){
+const list=document.getElementById("storeList");
+document.getElementById("count").textContent="মোট দোকান: "+stores.length+
+" | বাকি: "+stores.filter(s=>!s.done).length;
+list.innerHTML="";
+
+if(stores.length===0){
+list.textContent="এখনও কোনো দোকান যোগ করা হয়নি।";
+return;
+}
+
+stores.forEach(function(s){
+const div=document.createElement("div");
+div.className="store";
+
+const title=document.createElement("strong");
+title.textContent=(s.done?"✅ ":"🏪 ")+s.name;
+div.appendChild(title);
+
+const br=document.createElement("br");
+div.appendChild(br);
+
+const link=document.createElement("a");
+link.href=s.link;
+link.target="_blank";
+link.rel="noopener";
+link.textContent="দোকানের লোকেশন খুলুন";
+div.appendChild(link);
+
+const done=document.createElement("button");
+done.textContent=s.done?"ডেলিভারি সম্পন্ন হয়েছে":"ডেলিভারি সম্পন্ন করুন";
+done.disabled=s.done;
+done.onclick=function(){
+s.done=true;
+save();
 };
+div.appendChild(done);
 
-$("exportButton").onclick = () => {
-  const blob = new Blob([JSON.stringify(stores, null, 2)], {
-    type:"application/json"
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "my-delivery-route-backup.json";
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+const remove=document.createElement("button");
+remove.className="danger";
+remove.textContent="দোকান মুছে ফেলুন";
+remove.onclick=function(){
+if(confirm("এই দোকানটি মুছে ফেলবেন?")){
+stores=stores.filter(x=>x.id!==s.id);
+save();
+}
 };
+div.appendChild(remove);
 
-$("importFile").onchange = async event => {
-  const file = event.target.files[0];
-  if (!file) return;
+list.appendChild(div);
+});
+}
 
-  try {
-    const data = JSON.parse(await file.text());
-    if (!Array.isArray(data) || !data.every(s =>
-      s && typeof s.name === "string" &&
-      typeof s.link === "string" && validMapLink(s.link)
-    )) throw new Error("Invalid");
+function startJourney(){
+const pending=stores.filter(s=>!s.done);
 
-    if (!confirm("ব্যাকআপের দোকানগুলো বর্তমান তালিকায় যোগ করবেন?")) return;
+if(pending.length===0){
+alert("আগে দোকান যোগ করুন অথবা বাকি ডেলিভারি পরীক্ষা করুন।");
+return;
+}
 
-    data.forEach(s => {
-      stores.push({
-        id: Date.now().toString() + Math.random().toString(16).slice(2),
-        name:s.name,
-        link:s.link,
-        done:!!s.done
-      });
-    });
-    save();
-    render();
-    alert("ব্যাকআপের দোকান যোগ হয়েছে।");
-  } catch(e) {
-    alert("ব্যাকআপ ফাইলটি সঠিক নয়।");
-  } finally {
-    event.target.value = "";
-  }
-};
+if(!currentPosition){
+getLocation();
+alert("প্রথমে লোকেশন চালু করুন। লোকেশন পাওয়ার পর আবার যাত্রা শুরু চাপুন।");
+return;
+}
+
+openDirections(pending);
+}
+
+function openAllStores(){
+const pending=stores.filter(s=>!s.done);
+
+if(pending.length===0){
+alert("রুট তৈরির জন্য দোকান যোগ করুন।");
+return;
+}
+
+if(!currentPosition){
+getLocation();
+alert("লোকেশন পাওয়ার পর আবার রুট বাটনে চাপ দিন।");
+return;
+}
+
+openDirections(pending);
+}
+
+function openDirections(items){
+const origin=currentPosition.lat+","+currentPosition.lng;
+const destination=items[items.length-1].link;
+const waypoints=items.slice(0,-1).map(s=>s.link);
+
+let url="https://www.google.com/maps/dir/?api=1"+
+"&origin="+encodeURIComponent(origin)+
+"&destination="+encodeURIComponent(destination)+
+"&travelmode=driving";
+
+if(waypoints.length){
+url+="&waypoints="+encodeURIComponent(waypoints.join("|"));
+}
+
+window.open(url,"_blank");
+}
+
+function clearDelivered(){
+const n=stores.filter(s=>s.done).length;
+if(n===0){
+alert("কোনো সম্পন্ন ডেলিভারি নেই।");
+return;
+}
+if(confirm(n+"টি সম্পন্ন দোকান তালিকা থেকে সরাবেন?")){
+stores=stores.filter(s=>!s.done);
+save();
+}
+}
 
 render();
 </script>
